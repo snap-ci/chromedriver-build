@@ -55,6 +55,8 @@ task :default => :clean do
   raise 'could not determine version' if version.nil? || version.empty?
 
   cd "pkg" do
-    sh(%Q{bundle exec fpm -s dir -t #{distro} --name #{name} -a x86_64 --version "#{version}" --iteration #{release} -C ../jailed-root --verbose #{fpm_opts} --maintainer snap-ci@thoughtworks.com --vendor snap-ci@thoughtworks.com --url http://snap-ci.com --description "Heroku Toolbelt" .})
-          end
-          end
+    sh(%Q{
+         bundle exec fpm -s dir -t #{distro} --name #{name} -a x86_64 --version "#{version}" --iteration #{release} -C ../jailed-root --verbose #{fpm_opts} --maintainer snap-ci@thoughtworks.com --vendor snap-ci@thoughtworks.com --url http://snap-ci.com --description "Heroku Toolbelt" .
+    })
+  end
+end
