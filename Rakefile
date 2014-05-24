@@ -43,6 +43,15 @@ task :default => :clean do
 
   cd "jailed-root/usr/local/bin" do
     sh('unzip -q ../../../../downloads/chromedriver_linux64.zip')
+    sh('mv chromedriver chromedriver-original')
+    File.open('chromedriver', 'w') do |f|
+      f.write(<<-BASH)
+        #!/bin/bash
+
+        chromedriver-original --no-sandbox $@
+      BASH
+    end
+    sh('chmod 755 chromedriver-original')
     sh('chmod 755 chromedriver')
   end
 
