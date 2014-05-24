@@ -48,7 +48,8 @@ task :default => :clean do
       f.write(<<-BASH)
         #!/bin/bash
 
-        chromedriver-original --no-sandbox $@
+        DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+        $DIR/chromedriver-original --no-sandbox $@
       BASH
     end
     sh('chmod 755 chromedriver-original')
