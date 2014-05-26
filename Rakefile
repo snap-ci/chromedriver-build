@@ -46,10 +46,10 @@ task :default => :clean do
     sh('mv chromedriver chromedriver-original')
     File.open('chromedriver', 'w') do |f|
       f.write(<<-BASH)
-        #!/bin/bash
+#!/bin/bash
 
-        DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-        $DIR/chromedriver-original --no-sandbox $@
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+exec $DIR/chromedriver-original "$@" --no-sandbox
       BASH
     end
     sh('chmod 755 chromedriver-original')
