@@ -24,7 +24,7 @@ CLEAN.include("jailed-root", 'pkg')
 desc "build chromedriver #{distro}"
 task :default => :clean do
   version = "unknown"
-  release = ENV['GO_PIPELINE_COUNTER'] || ENV['RELEASE'] || 1
+  release = Time.now.utc.strftime('%Y%m%d%H%M%S')
   name = 'google-chrome-driver'
 
   mkdir_p "jailed-root/usr/local/bin"
