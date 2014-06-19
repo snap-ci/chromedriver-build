@@ -52,11 +52,7 @@ exec $DIR/chromedriver-original "$@" --no-sandbox
     sh('chmod 755 chromedriver')
   end
 
-  if distro == 'rpm'
-    version = %x[(jailed-root/usr/local/bin/chromedriver --version & PID=$!; sleep 2; kill $PID)].match(/^version=(.*)/)[1]
-  elsif distro == 'deb'
-    version = %x[(jailed-root/usr/local/bin/chromedriver --version & PID=$!; sleep 2; kill $PID)].match(/\(v(.*)\)/)[1]
-  end
+  version = %x[(jailed-root/usr/local/bin/chromedriver --version & PID=$!; sleep 2; kill $PID)].match(/\ (.*)/)[1]
 
   raise 'could not determine version' if version.nil? || version.empty?
 
