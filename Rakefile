@@ -45,6 +45,7 @@ task :default => :clean do
 #!/bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export LD_LIBRARY_PATH=/opt/google/chrome/lib:$LD_LIBRARY_PATH
 exec $DIR/chromedriver-original "$@" --no-sandbox
       BASH
     end
@@ -52,7 +53,7 @@ exec $DIR/chromedriver-original "$@" --no-sandbox
     sh('chmod 755 chromedriver')
   end
 
-  version = %x[(jailed-root/usr/local/bin/chromedriver --version & PID=$!; sleep 2; kill $PID)].match(/\ (.*)/)[1]
+  version = %x[(LD_LIBRARY_PATH=/opt/google/chrome/lib jailed-root/usr/local/bin/chromedriver --version & PID=$!; sleep 2; kill $PID)].match(/\ (.*)/)[1]
 
   raise 'could not determine version' if version.nil? || version.empty?
 
