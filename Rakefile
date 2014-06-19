@@ -53,7 +53,7 @@ exec $DIR/chromedriver-original "$@" --no-sandbox
     sh('chmod 755 chromedriver')
   end
 
-  version = %x[(LD_LIBRARY_PATH=/opt/google/chrome/lib jailed-root/usr/local/bin/chromedriver --version & PID=$!; sleep 2; kill $PID)].match(/\ (.*)/)[1]
+  version = %x[(jailed-root/usr/local/bin/chromedriver --version & PID=$!; sleep 2; kill $PID)].match(/\ (.*)/)[1]
 
   raise 'could not determine version' if version.nil? || version.empty?
 
