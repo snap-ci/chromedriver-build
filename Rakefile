@@ -34,11 +34,7 @@ task :default => :clean do
 
   version = nil
   cd "downloads" do
-    if distro == 'rpm'
-      sh("curl --fail --location http://chromedriver.googlecode.com/files/chromedriver_linux64_26.0.1383.0.zip > chromedriver_linux64.zip")
-    elsif distro == 'deb'
-      sh("curl --fail --location http://chromedriver.storage.googleapis.com/2.4/chromedriver_linux64.zip > chromedriver_linux64.zip")
-    end
+    sh("curl --fail --location https://chromedriver.storage.googleapis.com/2.10/chromedriver_linux64.zip > chromedriver_linux64.zip")
   end
 
   cd "jailed-root/usr/local/bin" do
