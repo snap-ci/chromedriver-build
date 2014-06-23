@@ -46,7 +46,7 @@ task :default => :clean do
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export LD_LIBRARY_PATH=/opt/google/chrome/lib:$LD_LIBRARY_PATH
-exec $DIR/chromedriver-original "$@" --no-sandbox
+exec $DIR/chromedriver-original "$@"
       BASH
     end
     sh('chmod 755 chromedriver-original')
