@@ -46,6 +46,7 @@ task :default => :clean do
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export LD_LIBRARY_PATH=/opt/google/chrome/lib:$LD_LIBRARY_PATH
+unset RUBYOPT BUNDLE_GEMFILE RUBYLIB BUNDLE_BIN_PATH GEM_HOME GEM_PATH
 exec $DIR/chromedriver-original "$@"
       BASH
     end
