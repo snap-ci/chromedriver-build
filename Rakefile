@@ -1,8 +1,6 @@
 require 'rubygems'
 require 'bundler/setup'
 
-require 'rake/clean'
-
 distro = nil
 fpm_opts = ""
 
@@ -19,48 +17,94 @@ unless distro
   $stderr.puts "Don't know what distro I'm running on -- not sure if I can build!"
 end
 
-CLEAN.include("jailed-root", 'pkg')
+versions = %w(2.10 2.11 2.12 2.13 2.14)
+release = Time.now.utc.strftime('%Y%m%d%H%M%S')
 
-desc "build chromedriver #{distro}"
-task :default => :clean do
-  version = "unknown"
-  release = Time.now.utc.strftime('%Y%m%d%H%M%S')
-  name = 'google-chrome-driver'
+task :clean do
+  rm_rf "pkg"
+  rm_rf "downloads"
+end
 
-  mkdir_p "jailed-root/usr/local/bin"
-
-  mkdir_p "pkg"
-  mkdir_p "downloads"
-
-  version = nil
-  cd "downloads" do
-    sh("curl --fail --location https://chromedriver.storage.googleapis.com/2.10/chromedriver_linux64.zip > chromedriver_linux64.zip")
+namespace "wrapper" do
+  task :clean do
+    rm_rf "jailed-root"
   end
 
-  cd "jailed-root/usr/local/bin" do
-    sh('unzip -q ../../../../downloads/chromedriver_linux64.zip')
-    sh('mv chromedriver chromedriver-original')
-    File.open('chromedriver', 'w') do |f|
-      f.write(<<-BASH)
+  task :init do
+    mkdir_p  "jailed-root/usr/local/bin"
+    mkdir_p "pkg"
+  end
+
+  desc "build the chromedriver wrapper package"
+  task :build => [:clean, :init] do
+
+    cd "jailed-root/usr/local/bin" do
+      File.open('chromedriver', 'w') do |f|
+        f.write(<<-BASH)
 #!/bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export LD_LIBRARY_PATH=/opt/google/chrome/lib:$LD_LIBRARY_PATH
 unset RUBYOPT BUNDLE_GEMFILE RUBYLIB BUNDLE_BIN_PATH GEM_HOME GEM_PATH
-exec $DIR/chromedriver-original "$@"
-      BASH
+
+# allow users to pick up a chromedriver version by specifying an environment variable
+CHROMEDRIVER_VERSION=${CHROMEDRIVER_VERSION:-2.10}
+
+exec ${DIR}/chromedriver-original-${CHROMEDRIVER_VERSION} "$@"
+
+BASH
+      end
+      sh('chmod 755 chromedriver')
     end
-    sh('chmod 755 chromedriver-original')
-    sh('chmod 755 chromedriver')
+
+  end
+end
+
+versions.each do |version|
+  namespace version do
+    package_name = "google-chrome-driver-#{version}"
+
+    task :clean do
+      rm_rf "jailed-root"
+    end
+
+    task :init do
+      mkdir_p  "jailed-root/usr/local/bin"
+      mkdir_p "pkg"
+      mkdir_p "downloads"
+    end
+
+    desc "build chromedriver #{version} #{distro}"
+    task :build => [:clean, :init] do
+
+      cd "downloads" do
+        sh("curl --fail --location https://chromedriver.storage.googleapis.com/#{version}/chromedriver_linux64.zip > chromedriver_linux64.zip")
+      end
+
+      cd "jailed-root/usr/local/bin" do
+        sh('unzip -q ../../../../downloads/chromedriver_linux64.zip')
+        sh("mv chromedriver chromedriver-original-#{version}")
+        sh("chmod 755 chromedriver-original-#{version}")
+      end
+
+      upstream_version = %x[(
+        export LD_LIBRARY_PATH=/opt/google/chrome/lib:$LD_LIBRARY_PATH;
+        unset RUBYOPT BUNDLE_GEMFILE RUBYLIB BUNDLE_BIN_PATH GEM_HOME GEM_PATH;
+        export CHROMEDRIVER_VERSION=#{version}
+        jailed-root/usr/local/bin/chromedriver-original-#{version} --version &
+        PID=$!;
+        sleep 2;
+        kill $PID)].match(/\ (.*)/)[1]
+
+      raise 'could not determine version' if upstream_version.nil? || upstream_version.empty?
+
+      cd "pkg" do
+        sh(%Q{
+             bundle exec fpm -s dir -t #{distro} --name #{package_name} -a x86_64 --version "#{upstream_version}" --iteration #{release} -C ../jailed-root --verbose #{fpm_opts} --depends chromedriver-wrapper --maintainer support@snap-ci.com --vendor support@snap-ci.com --url http://snap-ci.com --description "Chromedriver binary" .
+        })
+      end
+    end
   end
 
-  version = %x[(jailed-root/usr/local/bin/chromedriver --version & PID=$!; sleep 2; kill $PID)].match(/\ (.*)/)[1]
-
-  raise 'could not determine version' if version.nil? || version.empty?
-
-  cd "pkg" do
-    sh(%Q{
-         bundle exec fpm -s dir -t #{distro} --name #{name} -a x86_64 --version "#{version}" --iteration #{release} -C ../jailed-root --verbose #{fpm_opts} --maintainer snap-ci@thoughtworks.com --vendor snap-ci@thoughtworks.com --url http://snap-ci.com --description "Heroku Toolbelt" .
-    })
-  end
+  task :default => [:clean, "#{version}:build", "wrapper:build"]
 end
