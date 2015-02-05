@@ -78,7 +78,7 @@ versions.each do |version|
     task :build => [:clean, :init] do
 
       cd "downloads" do
-        sh("curl --fail --location https://chromedriver.storage.googleapis.com/#{version}/chromedriver_linux64.zip > chromedriver_linux64.zip")
+        sh("curl --silent --fail --location https://chromedriver.storage.googleapis.com/#{version}/chromedriver_linux64.zip > chromedriver_linux64.zip")
       end
 
       cd "jailed-root/usr/local/bin" do
@@ -88,13 +88,12 @@ versions.each do |version|
       end
 
       upstream_version = %x[(
-        export LD_LIBRARY_PATH=/opt/google/chrome/lib:$LD_LIBRARY_PATH;
-        unset RUBYOPT BUNDLE_GEMFILE RUBYLIB BUNDLE_BIN_PATH GEM_HOME GEM_PATH;
-        export CHROMEDRIVER_VERSION=#{version}
-        jailed-root/usr/local/bin/chromedriver-original-#{version} --version &
-        PID=$!;
-        sleep 2;
-        kill $PID)].match(/\ (.*)/)[1]
+        sleep 5
+        export LD_LIBRARY_PATH=/opt/google/chrome/lib:$LD_LIBRARY_PATH
+        unset RUBYOPT BUNDLE_GEMFILE RUBYLIB BUNDLE_BIN_PATH GEM_HOME GEM_PATH
+        jailed-root/usr/local/bin/chromedriver-original-#{version} --version & PID=$!
+        sleep 5
+        kill $PID > /dev/null 2>&1)].match(%r{(#{version}\.\d+)})[1]
 
       raise 'could not determine version' if upstream_version.nil? || upstream_version.empty?
 
