@@ -88,15 +88,10 @@ versions.each do |version|
       end
 
       upstream_version = %x[(
-        sleep 5
         export LD_LIBRARY_PATH=/opt/google/chrome/lib:$LD_LIBRARY_PATH
         unset RUBYOPT BUNDLE_GEMFILE RUBYLIB BUNDLE_BIN_PATH GEM_HOME GEM_PATH
-        jailed-root/usr/local/bin/chromedriver-original-#{version} --version & PID=$!
-        sleep 5
-        kill $PID > /dev/null 2>&1)]
-
-      p upstream_version
-      upstream_version = upstream_version.match(%r{(#{version}\.\d+)})[1]
+        timeout 30 jailed-root/usr/local/bin/chromedriver-original-#{version} --version
+        )].match(%r{(#{version}\.\d+)})[1]
 
       raise 'could not determine version' if upstream_version.nil? || upstream_version.empty?
 
