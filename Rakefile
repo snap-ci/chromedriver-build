@@ -53,10 +53,15 @@ CHROMEDRIVER_VERSION=${CHROMEDRIVER_VERSION:-2.10}
 exec ${DIR}/chromedriver-original-${CHROMEDRIVER_VERSION} "$@"
 
 BASH
-      end
+      end # File.open
       sh('chmod 755 chromedriver')
-    end
+    end # cd
 
+    cd "pkg" do
+      sh(%Q{
+         bundle exec fpm -s dir -t #{distro} --name google-chrome-driver-wrapper -a x86_64 --version "1.0" --iteration #{release} -C ../jailed-root --verbose #{fpm_opts} --maintainer support@snap-ci.com --vendor support@snap-ci.com --url http://snap-ci.com --description "Chromedriver wrapper" .
+      })
+    end
   end
 end
 
@@ -97,7 +102,7 @@ versions.each do |version|
 
       cd "pkg" do
         sh(%Q{
-             bundle exec fpm -s dir -t #{distro} --name #{package_name} -a x86_64 --version "#{upstream_version}" --iteration #{release} -C ../jailed-root --verbose #{fpm_opts} --depends chromedriver-wrapper --maintainer support@snap-ci.com --vendor support@snap-ci.com --url http://snap-ci.com --description "Chromedriver binary" .
+             bundle exec fpm -s dir -t #{distro} --name #{package_name} -a x86_64 --version "#{upstream_version}" --iteration #{release} -C ../jailed-root --verbose #{fpm_opts} --depends google-chrome-driver-wrapper --maintainer support@snap-ci.com --vendor support@snap-ci.com --url http://snap-ci.com --description "Chromedriver binary" .
         })
       end
     end
