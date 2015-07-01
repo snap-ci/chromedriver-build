@@ -17,7 +17,7 @@ unless distro
   $stderr.puts "Don't know what distro I'm running on -- not sure if I can build!"
 end
 
-versions = %w(2.10 2.11 2.12 2.13 2.14)
+versions = %w(2.10 2.11 2.12 2.13 2.14 2.15 2.16)
 release = Time.now.utc.strftime('%Y%m%d%H%M%S')
 
 task :clean do
