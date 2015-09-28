@@ -21,7 +21,7 @@ end
 
 package_manager = distro == 'deb' ? 'apt-get' : 'yum'
 
-versions = %w(2.10 2.11 2.12 2.13 2.14 2.15 2.16)
+versions = %w(2.10 2.11 2.12 2.13 2.14 2.15 2.16 2.17 2.18 2.19)
 release = Time.now.utc.strftime('%Y%m%d%H%M%S')
 
 task :clean do
