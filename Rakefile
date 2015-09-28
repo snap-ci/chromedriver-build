@@ -3,7 +3,7 @@ require 'bundler/setup'
 
 distro = nil
 fpm_opts = ""
-dependent_packages = ""
+dependent_packages = []
 
 if File.exist?('/etc/system-release') && File.read('/etc/redhat-release') =~ /centos|redhat|fedora|amazon/i
   distro = 'rpm'
@@ -87,7 +87,7 @@ versions.each do |version|
     task :build => [:clean, :init] do
 
       cd "downloads" do
-	sh("sudo #{package_manager} install -y #{dependent_packages.join(' ')}") if dependent_packages
+	      sh("sudo #{package_manager} install -y #{dependent_packages.join(' ')}") unless dependent_packages.empty?
         sh("curl --silent --fail --location https://chromedriver.storage.googleapis.com/#{version}/chromedriver_linux64.zip > chromedriver_linux64.zip")
       end
 
