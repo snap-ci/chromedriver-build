@@ -52,7 +52,7 @@ export LD_LIBRARY_PATH=/opt/google/chrome/lib:$LD_LIBRARY_PATH
 unset RUBYOPT BUNDLE_GEMFILE RUBYLIB BUNDLE_BIN_PATH GEM_HOME GEM_PATH
 
 # allow users to pick up a chromedriver version by specifying an environment variable
-CHROMEDRIVER_VERSION=${CHROMEDRIVER_VERSION:-2.10}
+CHROMEDRIVER_VERSION=${CHROMEDRIVER_VERSION:-2.19}
 
 exec ${DIR}/chromedriver-original-${CHROMEDRIVER_VERSION} "$@"
 
