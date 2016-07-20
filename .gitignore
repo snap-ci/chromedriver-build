@@ -2,3 +2,5 @@
 /downloads/
 /.bundle/
 /bin/
+.tags
+Gemfile.lock
