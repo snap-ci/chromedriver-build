@@ -21,7 +21,7 @@ end
 
 package_manager = distro == 'deb' ? 'apt-get' : 'yum'
 
-versions = %w(2.10 2.11 2.12 2.13 2.14 2.15 2.16 2.17 2.18 2.19 2.20 2.21 2.22 2.23 2.24)
+versions = %w(2.18 2.19 2.20 2.21 2.22 2.23 2.24)
 release = Time.now.utc.strftime('%Y%m%d%H%M%S')
 
 task :clean do
@@ -52,7 +52,7 @@ export LD_LIBRARY_PATH=/opt/google/chrome/lib:$LD_LIBRARY_PATH
 unset RUBYOPT BUNDLE_GEMFILE RUBYLIB BUNDLE_BIN_PATH GEM_HOME GEM_PATH
 
 # allow users to pick up a chromedriver version by specifying an environment variable
-CHROMEDRIVER_VERSION=${CHROMEDRIVER_VERSION:-2.19}
+CHROMEDRIVER_VERSION=${CHROMEDRIVER_VERSION:-2.24}
 
 exec ${DIR}/chromedriver-original-${CHROMEDRIVER_VERSION} "$@"
 
